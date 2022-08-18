@@ -519,6 +519,8 @@ namespace Codeaphobic
 						}
 					}
 				}
+
+				EditorApplication.playModeStateChanged -= StopAllTweens;
 			}
 		}
 	}
