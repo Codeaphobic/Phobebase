@@ -36,7 +36,7 @@ public class ThreadManager : Singleton
 		JobHandle handle = threadedWork.Schedule();
 
 		workQueue.Add(handle, result);
-		workCallbacks(handle, callback);
+		workCallbacks.Add(handle, callback);
 	}
 
 	void Update()
