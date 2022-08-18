@@ -8,7 +8,7 @@ using Unity.Jobs;
 public class ThreadManager : Singleton
 {
 	private Dictionary<JobHandle, NativeArray<object>> workQueue = new Dictionary<JobHandle, NativeArray<object>>();
-	private Dictionary<JobHandle, Action<object>> workCallbacks = new Dictionary<JobHandle, Action<object>>;
+	private Dictionary<JobHandle, Action<object>> workCallbacks = new Dictionary<JobHandle, Action<object>>();
 
 	public struct ThreadedWork<T1, TResult>
 	{
