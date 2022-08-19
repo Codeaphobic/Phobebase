@@ -8,7 +8,7 @@ namespace Codeaphobic
     {
         public static Singleton instance { get; protected set; }
 
-        private virtual void Awake() {
+        protected virtual void Awake() {
             if (Singleton.instance != null && instance != this)
             {
                 Destory(this);
@@ -89,9 +89,9 @@ namespace Codeaphobic
 				this.weight1 = weight1;
 			}
 
-			public Vector3 PointOnCurve(float time)
+			public Vector3 PointOnCurve(float t)
 			{
-				return weight1 + (1f - time) * (1f - time) * (point1 - weight1) + time * time * (point2 - weight1);
+				return weight1 + (1f - t) * (1f - t) * (point1 - weight1) + t * t * (point2 - weight1);
 			}
 		}
 
@@ -110,15 +110,17 @@ namespace Codeaphobic
 				this.weight2 = weight2;
 			}
 
-			public Vector3 PointOnCurve(float time)
+			public Vector3 PointOnCurve(float t)
 			{
-				return (1f - time) * (1f - time) * (1f - time) * point1 + 3 * ((1f - time) * (1f - time)) * time * weight1 + 3 * (1f - time) * (time * time) * weight2 + time * time * time * point2;
+				return (1f - t) * (1f - t) * (1f - t) * point1 + 3 * ((1f - t) * (1f - t)) * t 
+					* weight1 + 3 * (1f - t) * (t * t) * weight2 + t * t * t * point2;
 			}
 		}
 	}
 
 	public class GPUCompute
 	{
+		#region Variables
 		private ComputeShader m_shader;
 		public ComputeShader shader {
 			get { return m_shader; }
@@ -138,7 +140,7 @@ namespace Codeaphobic
 			this.shader = shader
 			return this;
 		}
-
+		#endregion
 		#region Add Returnable Data
 
 		public GPUCompute AddTexture(ref RenderTexture texture, string textureName)
@@ -266,7 +268,7 @@ namespace Codeaphobic
 		}
 
 		#endregion
-
+		#region Dispose Data
 		public GPUCompute DisposeBuffer(string name) 
 		{
 			buffers[name].Dispose();
@@ -282,5 +284,6 @@ namespace Codeaphobic
 			buffers.Clear();
 			return this;
 		}
+		#endregion
 	}
 }

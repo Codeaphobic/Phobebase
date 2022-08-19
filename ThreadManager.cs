@@ -5,55 +5,58 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Jobs;
 
-public class ThreadManager : Singleton
+namespace Codeaphobic 
 {
-	private Dictionary<JobHandle, NativeArray<object>> workQueue = new Dictionary<JobHandle, NativeArray<object>>();
-	private Dictionary<JobHandle, Action<object>> workCallbacks = new Dictionary<JobHandle, Action<object>>();
-
-	public struct ThreadedWork<T1, TResult>
+	public class ThreadManager : Singleton
 	{
-		public T1 arg;
-		public Func<T1, TResult> function;
-		public NativeArray<TResult> result;
+		private Dictionary<JobHandle, NativeArray<object>> workQueue = new Dictionary<JobHandle, NativeArray<object>>();
+		private Dictionary<JobHandle, Action<object>> workCallbacks = new Dictionary<JobHandle, Action<object>>();
 
-		public void Execute()
+		public struct ThreadedWork<T1, TResult>
 		{
-			result[0] = function.Invoke(arg);
-		}
-	}
+			public T1 arg;
+			public Func<T1, TResult> function;
+			public NativeArray<TResult> result;
 
-	public TResult QueueBasicAsyncThread<T1, TResult>(Func<T1, TResult> function, T1 arg, Action<TResult> callback)
-	{
-		NativeArray<TResult> result = new NativeArray<TResult>(1, Allocator.TempJob);
-
-		ThreadedWork<T1, TResult> threadedWork = new ThreadedWork<T1, TResult>()
-		{
-			arg = arg,
-			function = function,
-			result = result
+			public void Execute()
+			{
+				result[0] = function.Invoke(arg);
+			}
 		}
 
-		JobHandle handle = threadedWork.Schedule();
-
-		workQueue.Add(handle, result);
-		workCallbacks.Add(handle, callback);
-	}
-
-	void Update()
-	{
-		if (workQueue.Count == 0) return;
-
-		foreach (JobHandle handle in workQueue.keys)
+		public TResult QueueBasicAsyncThread<T1, TResult>(Func<T1, TResult> function, T1 arg, Action<TResult> callback)
 		{
-			if (!handle.isComplete) continue;
+			NativeArray<TResult> result = new NativeArray<TResult>(1, Allocator.TempJob);
 
-			handle.Complete();
+			ThreadedWork<T1, TResult> threadedWork = new ThreadedWork<T1, TResult>()
+			{
+				arg = arg,
+				function = function,
+				result = result
+			}
 
-			workCallbacks[handle].Invoke(workQueue[handle][0]);
+			JobHandle handle = threadedWork.Schedule();
 
-			workQueue[handle].Dispose();
-			workQueue.Remove(handle);
-			workCallbacks.Remove(handle);
+			workQueue.Add(handle, result);
+			workCallbacks.Add(handle, callback);
+		}
+
+		void Update()
+		{
+			if (workQueue.Count == 0) return;
+
+			foreach (JobHandle handle in workQueue.keys)
+			{
+				if (!handle.isComplete) continue;
+
+				handle.Complete();
+
+				workCallbacks[handle].Invoke(workQueue[handle][0]);
+
+				workQueue[handle].Dispose();
+				workQueue.Remove(handle);
+				workCallbacks.Remove(handle);
+			}
 		}
 	}
 }
