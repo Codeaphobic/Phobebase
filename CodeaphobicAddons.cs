@@ -525,43 +525,46 @@ namespace Codeaphobic
 		}
 	}
 
-	public class BezierCurve2
+	public class Curves 
 	{
-		public Vector3 point1;
-		public Vector3 point2;
-		public Vector3 weight1;
-
-		public BezierCurve2(Vector3 point1, Vector3 point2, Vector3 weight1)
+		public class BezierCurve2
 		{
-			this.point1 = point1;
-			this.point2 = point2;
-			this.weight1 = weight1;
+			public Vector3 point1;
+			public Vector3 point2;
+			public Vector3 weight1;
+
+			public BezierCurve2(Vector3 point1, Vector3 point2, Vector3 weight1)
+			{
+				this.point1 = point1;
+				this.point2 = point2;
+				this.weight1 = weight1;
+			}
+
+			public Vector3 PointOnCurve(float time)
+			{
+				return weight1 + (1f - time) * (1f - time) * (point1 - weight1) + time * time * (point2 - weight1);
+			}
 		}
 
-		public Vector3 PointOnCurve(float time)
+		public class BezierCurve3
 		{
-			return weight1 + (1f - time) * (1f - time) * (point1 - weight1) + time * time * (point2 - weight1);
-		}
-	}
+			public Vector3 point1;
+			public Vector3 point2;
+			public Vector3 weight1;
+			public Vector3 weight2;
 
-	public class BezierCurve3
-	{
-		public Vector3 point1;
-		public Vector3 point2;
-		public Vector3 weight1;
-		public Vector3 weight2;
+			public BezierCurve3(Vector3 point1, Vector3 point2, Vector3 weight1, Vector3 weight2)
+			{
+				this.point1 = point1;
+				this.point2 = point2;
+				this.weight1 = weight1;
+				this.weight2 = weight2;
+			}
 
-		public BezierCurve3(Vector3 point1, Vector3 point2, Vector3 weight1, Vector3 weight2)
-		{
-			this.point1 = point1;
-			this.point2 = point2;
-			this.weight1 = weight1;
-			this.weight2 = weight2;
-		}
-
-		public Vector3 PointOnCurve(float time)
-		{
-			return (1f - time) * (1f - time) * (1f - time) * point1 + 3 * ((1f - time) * (1f - time)) * time * weight1 + 3 * (1f - time) * (time * time) * weight2 + time * time * time * point2;
+			public Vector3 PointOnCurve(float time)
+			{
+				return (1f - time) * (1f - time) * (1f - time) * point1 + 3 * ((1f - time) * (1f - time)) * time * weight1 + 3 * (1f - time) * (time * time) * weight2 + time * time * time * point2;
+			}
 		}
 	}
 
