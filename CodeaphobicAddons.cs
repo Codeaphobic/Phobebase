@@ -1,80 +1,177 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace Codeaphobic
 {
-    public class Singleton : MonoBehaviour 
-    {
-        public static Singleton instance { get; protected set; }
+	public class Singleton : MonoBehaviour
+	{
+		public static Singleton instance { get; protected set; }
 
-        protected virtual void Awake() {
-            if (Singleton.instance != null && instance != this)
-            {
-                Destory(this);
-            }
-            else 
-            {
-                instance = this;
-            }
-        }
-    }
+		protected virtual void Awake()
+		{
+			if (Singleton.instance != null && instance != this)
+			{
+				Destroy(this);
+			}
+			else
+			{
+				instance = this;
+			}
+		}
+	}
 
-    public class Serialization 
-    {
-        public static bool SaveToFile(string saveSubPath, object saveData)
-        {
-            saveSubPath = (saveSubPath.Substring()[0] == "/") ? saveSubPath : "/" + saveSubPath;
+	public class Serialization
+	{
+		#region Binary File Save System
+		public static bool SaveToBinaryFile(string saveSubPath, string saveName, object saveData)
+		{
+			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
+			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
+			string path = Application.persistentDataPath + saveSubPath;
 
-            string path = Application.persistentDataPath + saveSubPath;
+			BinaryFormatter formatter = GetBinaryFormatter();
 
-            BinaryFormatter formatter = GetBinaryFormatter();
+			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
+			FileStream file = File.Create(path + saveName);
 
-            FileStream file = File.Create(path);
+			formatter.Serialize(file, saveData);
 
-            formatter.Serialize(file, saveData);
+			file.Close();
 
-            file.Close();
+			return true;
+		}
 
-            return true;
-        }
+		public static object LoadBinaryFile(string path)
+		{
+			path = (path[0] == '/') ? path : "/" + path;
+			string fullPath = Application.persistentDataPath + path;
 
-        public static object Load(string path)
-        {
-            if (!File.Exists(path)) { return null; }
+			if (!File.Exists(path)) return null;
 
-            BinaryFormatter formatter = GetBinaryFormatter();
+			BinaryFormatter formatter = GetBinaryFormatter();
 
-            FileStream file = File.Open(path, FileMode.Open);
+			FileStream file = File.Open(path, FileMode.Open);
 
-            try
-            {
-                object save = formatter.Deserialize(file);
-                file.Close();
-                return save;
-            }
-            catch
-            {
-                Debug.LogErrorFormat("failed to load file at {0}", path);
-                file.Close();
-                return null;
-            }
-        }
+			try
+			{
+				object save = formatter.Deserialize(file);
+				file.Close();
+				return save;
+			}
+			catch
+			{
+				Debug.LogErrorFormat("failed to load file at {0}", path);
+				file.Close();
+				return null;
+			}
+		}
 
-        public static BinaryFormatter GetBinaryFormatter()
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
+		public static BinaryFormatter GetBinaryFormatter()
+		{
+			BinaryFormatter formatter = new BinaryFormatter();
 
-            return formatter;
-        }
-    }
+			return formatter;
+		}
+		#endregion
 
-	public class Curves 
+		#region Json File Save System
+		public static bool SaveToJsonFile(string saveSubPath, string saveName, object saveData)
+		{
+			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
+			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
+			string path = Application.persistentDataPath + saveSubPath;
+
+			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+			string json = JsonUtility.ToJson(saveData, true);
+
+			File.WriteAllText(path + saveName, json);
+
+			return true;
+		}
+
+		public static T LoadJsonFile<T>(string path)
+		{
+			path = (path[0] == '/') ? path : "/" + path;
+			string fullPath = Application.persistentDataPath + path;
+
+			if (!File.Exists(fullPath)) return default(T);
+
+			string json = File.ReadAllText(fullPath);
+
+			return JsonUtility.FromJson<T>(json);
+		}
+		#endregion
+
+		#region Tamper Resistent Json File Save System
+
+		public static bool SaveToProtectedJsonFile(string saveSubPath, string saveName, object saveData, string key = "J34$%GWJ68#DW")
+		{
+			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
+			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
+			string path = Application.persistentDataPath + saveSubPath;
+
+			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+			byte[] saveDataBytes = Encoding.UTF8.GetBytes(EncryptDecrypt(JsonUtility.ToJson(saveData, false), key));
+			byte[] data = Hashing.Hash(saveDataBytes);
+
+			Debug.Log($"Hash: {Hashing.GetHexStringFromHash(data)}, Data: {Hashing.GetHexStringFromHash(saveDataBytes)}");
+
+			data = data.Concat(saveDataBytes);
+
+			File.WriteAllBytes(path + saveName, data);
+
+			return true;
+		}
+
+		public static T LoadProtectedJsonFile<T>(string path, string key = "J34$%GWJ68#DW")
+		{
+			path = (path[0] == '/') ? path : "/" + path;
+			string fullPath = Application.persistentDataPath + path;
+
+			if (!File.Exists(fullPath)) return default(T);
+
+			byte[] data = File.ReadAllBytes(fullPath);
+
+			Debug.Log(data.Length);
+
+			byte[] savedhash = data[0..32];
+			data = data[32..];
+
+			byte[] hash = Hashing.Hash(data);
+
+			Debug.Log($"SavedHash: {Hashing.GetHexStringFromHash(savedhash)}, Data: {Hashing.GetHexStringFromHash(data)}");
+			Debug.Log($"New Hash:  {Hashing.GetHexStringFromHash(hash)}");
+
+			if (!savedhash.SequenceEqual(hash)) return default(T);
+
+			return JsonUtility.FromJson<T>(EncryptDecrypt(Encoding.UTF8.GetString(data), key));
+		}
+
+		public static string EncryptDecrypt(string value, string key)
+		{
+			string result = "";
+
+			for (int i = 0; i < value.Length; i++)
+			{
+				result += (char)(value[i] ^ key[i % key.Length]);
+			}
+
+			return result;
+		}
+		#endregion
+	}
+
+	namespace Curves
 	{
 		public class BezierCurve2
 		{
@@ -112,7 +209,7 @@ namespace Codeaphobic
 
 			public Vector3 PointOnCurve(float t)
 			{
-				return (1f - t) * (1f - t) * (1f - t) * point1 + 3 * ((1f - t) * (1f - t)) * t 
+				return (1f - t) * (1f - t) * (1f - t) * point1 + 3 * ((1f - t) * (1f - t)) * t
 					* weight1 + 3 * (1f - t) * (t * t) * weight2 + t * t * t * point2;
 			}
 		}
@@ -122,22 +219,22 @@ namespace Codeaphobic
 	{
 		#region Variables
 		private ComputeShader m_shader;
-		public ComputeShader shader {
+		public ComputeShader shader
+		{
 			get { return m_shader; }
 			private set { m_shader = value; }
 		}
 
-		private Dictionary<string, ComputeBuffer> m_buffers = new List<ComputeBuffer>();
-		public Dictionary<string, ComputeBuffer> buffers {
+		private Dictionary<string, ComputeBuffer> m_buffers = new Dictionary<string, ComputeBuffer>();
+		public Dictionary<string, ComputeBuffer> buffers
+		{
 			get { return m_buffers; }
 			private set { m_buffers = value; }
 		}
 
-		private int m_bufferLocation = 0;
-
-		public static GPUCompute Create(ComputeShader shader)
+		public GPUCompute Create(ComputeShader shader)
 		{
-			this.shader = shader
+			this.shader = shader;
 			return this;
 		}
 		#endregion
@@ -145,17 +242,17 @@ namespace Codeaphobic
 
 		public GPUCompute AddTexture(ref RenderTexture texture, string textureName)
 		{
-			shader.SetTexture(bufferLocation, textureName, texture);
+			shader.SetTexture(0, textureName, texture);
 			return this;
 		}
 
-		public GPUCompute CreateTexture(string textureName, Vector2 dimensions, int depth, out RenderTexture texture)
+		public GPUCompute CreateTexture(string textureName, Vector2Int dimensions, int depth, out RenderTexture texture)
 		{
 			texture = new RenderTexture(dimensions.x, dimensions.y, depth);
 			texture.enableRandomWrite = true;
 			texture.Create();
 
-			shader.SetTexture(bufferLocation, textureName, texture);
+			shader.SetTexture(0, textureName, texture);
 			return this;
 		}
 
@@ -165,7 +262,7 @@ namespace Codeaphobic
 			return this;
 		}
 
-		public GPUCompute CreateTexture(string textureName, Vector2 dimensions, int depth, int bufferLocation, out RenderTexture texture)
+		public GPUCompute CreateTexture(string textureName, Vector2Int dimensions, int depth, int bufferLocation, out RenderTexture texture)
 		{
 			texture = new RenderTexture(dimensions.x, dimensions.y, depth);
 			texture.enableRandomWrite = true;
@@ -200,68 +297,68 @@ namespace Codeaphobic
 
 		public GPUCompute AddFloat(string name, float value)
 		{
-			texture.SetFloat(name, value);
+			shader.SetFloat(name, value);
 			return this;
 		}
 
 		public GPUCompute AddFloats(string name, float[] values)
 		{
-			texture.SetFloats(name, values);
+			shader.SetFloats(name, values);
 			return this;
 		}
 
 		public GPUCompute AddInt(string name, int value)
 		{
-			texture.SetInt(name, value);
+			shader.SetInt(name, value);
 			return this;
 		}
 
 		public GPUCompute AddInts(string name, int[] values)
 		{
-			texture.SetInts(values);
+			shader.SetInts(name, values);
 			return this;
 		}
 
 		public GPUCompute AddVector(string name, Vector4 value)
 		{
-			texture.SetVector(name, value);
+			shader.SetVector(name, value);
 			return this;
 		}
 
 		public GPUCompute AddVectorArray(string name, Vector4[] values)
 		{
-			texture.SetVectorArray(name, values);
+			shader.SetVectorArray(name, values);
 			return this;
 		}
 
 		public GPUCompute AddMatrix(string name, Matrix4x4 value)
 		{
-			texture.SetMatrix(name, value);
+			shader.SetMatrix(name, value);
 			return this;
 		}
 
 		public GPUCompute AddMatrixArray(string name, Matrix4x4[] values)
 		{
-			texture.SetMatrixArray(name, values);
+			shader.SetMatrixArray(name, values);
 			return this;
 		}
 
 		public GPUCompute AddBool(string name, bool value)
 		{
-			texture.SetBool(name, value);
+			shader.SetBool(name, value);
 			return this;
 		}
 
 		#endregion
 		#region Retreive Data
 
-		public GPUCompute Compute(Vector2 parallelizationAxis)
+		public GPUCompute Compute(Vector2Int parallelizationAxis)
 		{
 			shader.Dispatch(0, parallelizationAxis.x, parallelizationAxis.y, 1);
 			return this;
 		}
 
-		public GPUCompute GetData<T>(string name, ref T[] bufferObjects) 
+		public GPUCompute GetData<T>(string name, ref T[] bufferObjects)
 		{
 			buffers[name].GetData(bufferObjects);
 			return this;
@@ -269,15 +366,16 @@ namespace Codeaphobic
 
 		#endregion
 		#region Dispose Data
-		public GPUCompute DisposeBuffer(string name) 
+		public GPUCompute DisposeBuffer(string name)
 		{
 			buffers[name].Dispose();
 			buffers.Remove(name);
+			return this;
 		}
 
 		public GPUCompute DisposeBuffers()
 		{
-			foreach (ComputeBuffer buffer in buffers) 
+			foreach (ComputeBuffer buffer in buffers.Values)
 			{
 				buffer.Dispose();
 			}
@@ -285,5 +383,93 @@ namespace Codeaphobic
 			return this;
 		}
 		#endregion
+	}
+
+	public static class Extensions
+	{
+		public static Vector3 Round(this Vector3 vector3, int decimalPlaces = 2)
+		{
+			float multiplier = 1;
+			for (int i = 0; i < decimalPlaces; i++)
+			{
+				multiplier *= 10f;
+			}
+			return new Vector3(
+				Mathf.Round(vector3.x * multiplier) / multiplier,
+				Mathf.Round(vector3.y * multiplier) / multiplier,
+				Mathf.Round(vector3.z * multiplier) / multiplier);
+		}
+
+		public static Vector2 Round(this Vector2 vector2, int decimalPlaces = 2)
+		{
+			float multiplier = 1;
+			for (int i = 0; i < decimalPlaces; i++)
+			{
+				multiplier *= 10f;
+			}
+			return new Vector2(
+				Mathf.Round(vector2.x * multiplier) / multiplier,
+				Mathf.Round(vector2.y * multiplier) / multiplier);
+		}
+
+		public static T[] Concat<T>(this T[] first, T[] second)
+		{
+			if (first == null)
+			{
+				return second;
+			}
+			if (second == null)
+			{
+				return first;
+			}
+
+			T[] result = new T[first.Length + second.Length];
+			first.CopyTo(result, 0);
+			second.CopyTo(result, first.Length);
+
+			return result;
+		}
+	}
+
+	public class Hashing
+	{
+		public static byte[] Hash(string data)
+		{
+			byte[] byteData = Encoding.UTF8.GetBytes(data);
+			SHA256Managed hasher = new SHA256Managed();
+
+			return hasher.ComputeHash(byteData);
+		}
+
+		public static byte[] Hash(byte[] data)
+		{
+			SHA256Managed hasher = new SHA256Managed();
+
+			return hasher.ComputeHash(data);
+		}
+
+		public static string GetHexStringFromHash(byte[] hash)
+		{
+			string hexString = "";
+
+			foreach (byte b in hash) hexString += b.ToString("x2");
+
+			return hexString;
+		}
+	}
+
+	namespace Threading
+	{
+		public struct ThreadResult
+		{
+			public bool complete { get; set; }
+			public object result { get; set; }
+
+			public ThreadResult(bool complete, object result)
+			{
+				this.complete = complete;
+				this.result = result;
+			}
+		}
 	}
 }

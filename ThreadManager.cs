@@ -1,39 +1,41 @@
-using Codeaphobic;
+using Codeaphobic.Threading;
 using System;
 using System.Collections;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Jobs;
+using System.Collections.Generic;
 
 namespace Codeaphobic 
 {
 	public class ThreadManager : Singleton
 	{
-		private Dictionary<JobHandle, NativeArray<object>> workQueue = new Dictionary<JobHandle, NativeArray<object>>();
-		private Dictionary<JobHandle, Action<object>> workCallbacks = new Dictionary<JobHandle, Action<object>>();
+		private Dictionary<JobHandle, NativeArray<Threading.ThreadResult>> workQueue = new Dictionary<JobHandle, NativeArray<ThreadResult>>();
+		private Dictionary<JobHandle, Action<ThreadResult>> workCallbacks = new Dictionary<JobHandle, Action<ThreadResult>>();
 
-		public struct ThreadedWork<T1, TResult>
+		public struct ThreadedWork<T1, TResult> : IJob
 		{
 			public T1 arg;
 			public Func<T1, TResult> function;
-			public NativeArray<TResult> result;
+			public NativeArray<ThreadResult> result;
 
 			public void Execute()
 			{
-				result[0] = function.Invoke(arg);
+				ThreadResult threadResult = new ThreadResult(true, function.Invoke(arg));
+				result[0] = threadResult;
 			}
 		}
 
-		public TResult QueueBasicAsyncThread<T1, TResult>(Func<T1, TResult> function, T1 arg, Action<TResult> callback)
+		public void QueueBasicAsyncThread<T1, TResult>(Func<T1, ThreadResult> function, T1 arg, Action<ThreadResult> callback)
 		{
-			NativeArray<TResult> result = new NativeArray<TResult>(1, Allocator.TempJob);
+			NativeArray<ThreadResult> result = new NativeArray<ThreadResult>(1, Allocator.TempJob);
 
-			ThreadedWork<T1, TResult> threadedWork = new ThreadedWork<T1, TResult>()
+			ThreadedWork<T1, ThreadResult> threadedWork = new ThreadedWork<T1, ThreadResult>()
 			{
 				arg = arg,
 				function = function,
 				result = result
-			}
+			};
 
 			JobHandle handle = threadedWork.Schedule();
 
@@ -45,9 +47,9 @@ namespace Codeaphobic
 		{
 			if (workQueue.Count == 0) return;
 
-			foreach (JobHandle handle in workQueue.keys)
+			foreach (JobHandle handle in workQueue.Keys)
 			{
-				if (!handle.isComplete) continue;
+				if (!handle.IsCompleted) continue;
 
 				handle.Complete();
 
