@@ -10,13 +10,13 @@ using UnityEngine;
 
 namespace Codeaphobic
 {
-	public class Singleton : MonoBehaviour
+	public abstract class Singleton<T> : MonoBehaviour where T : class
 	{
-		public static Singleton instance { get; protected set; }
+		public static T instance { get; protected set; }
 
 		protected virtual void Awake()
 		{
-			if (Singleton.instance != null && instance != this)
+			if (T.instance != null && instance != this)
 			{
 				Destroy(this);
 			}
