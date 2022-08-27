@@ -10,20 +10,18 @@ using UnityEngine;
 
 namespace Codeaphobic
 {
-	public abstract class Singleton<T> : MonoBehaviour where T : class
+	public class Singleton<T> : MonoBehaviour where T : Singleton<T>
 	{
-		public static T instance { get; protected set; }
+		public static T instance { get; private set; }
 
 		protected virtual void Awake()
 		{
-			if (T.instance != null && instance != this)
+			if (instance != null && instance != this)
 			{
 				Destroy(this);
+				return;
 			}
-			else
-			{
-				instance = this;
-			}
+			instance = (T)this;
 		}
 	}
 
@@ -35,6 +33,12 @@ namespace Codeaphobic
 			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
 			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
 			string path = Application.persistentDataPath + saveSubPath;
+
+#if UNITY_EDITOR
+
+				path += "dev/";
+
+#endif
 
 			BinaryFormatter formatter = GetBinaryFormatter();
 
@@ -49,10 +53,19 @@ namespace Codeaphobic
 			return true;
 		}
 
-		public static object LoadBinaryFile(string path)
+		public static object LoadBinaryFile(string folderPath, string filename)
 		{
-			path = (path[0] == '/') ? path : "/" + path;
-			string fullPath = Application.persistentDataPath + path;
+			folderPath = (folderPath[0] == '/') ? folderPath : "/" + folderPath;
+			folderPath = (folderPath[folderPath.Length - 1] == '/') ? folderPath : folderPath + "/";
+			string path = Application.persistentDataPath + folderPath;
+
+#if UNITY_EDITOR
+
+				path += "dev/";
+
+#endif
+
+			path += filename;
 
 			if (!File.Exists(path)) return null;
 
@@ -89,6 +102,12 @@ namespace Codeaphobic
 			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
 			string path = Application.persistentDataPath + saveSubPath;
 
+#if UNITY_EDITOR
+
+				path += "dev/";
+
+#endif
+
 			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
 			string json = JsonUtility.ToJson(saveData, true);
@@ -98,14 +117,23 @@ namespace Codeaphobic
 			return true;
 		}
 
-		public static T LoadJsonFile<T>(string path)
+		public static T LoadJsonFile<T>(string folderPath, string filename)
 		{
-			path = (path[0] == '/') ? path : "/" + path;
-			string fullPath = Application.persistentDataPath + path;
+			folderPath = (folderPath[0] == '/') ? folderPath : "/" + folderPath;
+			folderPath = (folderPath[folderPath.Length - 1] == '/') ? folderPath : folderPath + "/";
+			string path = Application.persistentDataPath + folderPath;
 
-			if (!File.Exists(fullPath)) return default(T);
+#if UNITY_EDITOR
 
-			string json = File.ReadAllText(fullPath);
+				path += "dev/";
+
+#endif
+
+			path += filename;
+
+			if (!File.Exists(path)) return default(T);
+
+			string json = File.ReadAllText(path);
 
 			return JsonUtility.FromJson<T>(json);
 		}
@@ -118,6 +146,12 @@ namespace Codeaphobic
 			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
 			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
 			string path = Application.persistentDataPath + saveSubPath;
+
+#if UNITY_EDITOR
+
+				path += "dev/";
+
+#endif
 
 			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
@@ -133,14 +167,23 @@ namespace Codeaphobic
 			return true;
 		}
 
-		public static T LoadProtectedJsonFile<T>(string path, string key = "J34$%GWJ68#DW")
+		public static T LoadProtectedJsonFile<T>(string folderPath, string filename, string key = "J34$%GWJ68#DW")
 		{
-			path = (path[0] == '/') ? path : "/" + path;
-			string fullPath = Application.persistentDataPath + path;
+			folderPath = (folderPath[0] == '/') ? folderPath : "/" + folderPath;
+			folderPath = (folderPath[folderPath.Length - 1] == '/') ? folderPath : folderPath + "/";
+			string path = Application.persistentDataPath + folderPath;
 
-			if (!File.Exists(fullPath)) return default(T);
+#if UNITY_EDITOR
 
-			byte[] data = File.ReadAllBytes(fullPath);
+				path += "dev/";
+
+#endif
+
+			path += filename;
+
+			if (!File.Exists(path)) return default(T);
+
+			byte[] data = File.ReadAllBytes(path);
 
 			Debug.Log(data.Length);
 
