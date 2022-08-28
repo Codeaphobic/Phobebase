@@ -28,17 +28,18 @@ namespace Codeaphobic
 	public class Serialization
 	{
 		#region Binary File Save System
+		
 		public static bool SaveToBinaryFile(string saveSubPath, string saveName, object saveData)
 		{
 			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
 			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
 			string path = Application.persistentDataPath + saveSubPath;
 
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 
 				path += "dev/";
 
-#endif
+			#endif
 
 			BinaryFormatter formatter = GetBinaryFormatter();
 
@@ -59,11 +60,11 @@ namespace Codeaphobic
 			folderPath = (folderPath[folderPath.Length - 1] == '/') ? folderPath : folderPath + "/";
 			string path = Application.persistentDataPath + folderPath;
 
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 
 				path += "dev/";
 
-#endif
+			#endif
 
 			path += filename;
 
@@ -96,17 +97,18 @@ namespace Codeaphobic
 		#endregion
 
 		#region Json File Save System
+
 		public static bool SaveToJsonFile(string saveSubPath, string saveName, object saveData)
 		{
 			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
 			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
 			string path = Application.persistentDataPath + saveSubPath;
 
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 
 				path += "dev/";
 
-#endif
+			#endif
 
 			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
@@ -123,11 +125,11 @@ namespace Codeaphobic
 			folderPath = (folderPath[folderPath.Length - 1] == '/') ? folderPath : folderPath + "/";
 			string path = Application.persistentDataPath + folderPath;
 
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 
 				path += "dev/";
 
-#endif
+			#endif
 
 			path += filename;
 
@@ -147,11 +149,11 @@ namespace Codeaphobic
 			saveSubPath = (saveSubPath[saveSubPath.Length - 1] == '/') ? saveSubPath : saveSubPath + "/";
 			string path = Application.persistentDataPath + saveSubPath;
 
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 
 				path += "dev/";
 
-#endif
+			#endif
 
 			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
@@ -173,11 +175,11 @@ namespace Codeaphobic
 			folderPath = (folderPath[folderPath.Length - 1] == '/') ? folderPath : folderPath + "/";
 			string path = Application.persistentDataPath + folderPath;
 
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 
 				path += "dev/";
 
-#endif
+			#endif
 
 			path += filename;
 
