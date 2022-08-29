@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Codeaphobic 
 {
-	public class ThreadManager : Singleton
+	public class ThreadManager : Singleton<ThreadManager>
 	{
 		private Dictionary<JobHandle, NativeArray<Threading.ThreadResult>> workQueue = new Dictionary<JobHandle, NativeArray<ThreadResult>>();
 		private Dictionary<JobHandle, Action<ThreadResult>> workCallbacks = new Dictionary<JobHandle, Action<ThreadResult>>();

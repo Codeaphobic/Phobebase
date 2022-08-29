@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace Codeaphobic 
 {
-    public class AudioManager : Singleton
+    public class AudioManager : Singleton<AudioManager>
     {
 
         #region Variables 

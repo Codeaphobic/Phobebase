@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Codeaphobic 
 {
-    public class InputManagerBase : Singleton 
+    public class InputManagerBase : Singleton<InputManagerBase>
     {
         protected static GameInput inputActions;
 
