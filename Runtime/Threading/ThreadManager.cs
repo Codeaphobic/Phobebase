@@ -1,4 +1,4 @@
-using Codeaphobic.Threading;
+using Phobebase.Common;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using System.Collections.Generic;
 
-namespace Codeaphobic 
+namespace Phobebase.Threading
 {
 	public class ThreadManager : Singleton<ThreadManager>
 	{

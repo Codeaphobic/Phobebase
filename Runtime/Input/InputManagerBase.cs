@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Codeaphobic 
+namespace Phobebase.Input
 {
     public class InputManagerBase : Singleton<InputManagerBase>
     {

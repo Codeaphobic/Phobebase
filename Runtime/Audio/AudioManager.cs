@@ -2,8 +2,9 @@ using UnityEngine.Audio;
 using System;
 using UnityEngine;
 using System.Collections;
+using Phobebase.Common;
 
-namespace Codeaphobic 
+namespace Phobebase.Audio
 {
     public class AudioManager : Singleton<AudioManager>
     {
