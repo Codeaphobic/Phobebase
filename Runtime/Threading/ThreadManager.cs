@@ -8,11 +8,15 @@ using System.Collections.Generic;
 
 namespace Phobebase.Threading
 {
+	// Probably would recommend writing your own less Generalised Method as this one is optimised for simplisity
+	// And wont be as readable as a custom implementation for your specific needs.
+
 	public class ThreadManager : Singleton<ThreadManager>
 	{
 		private Dictionary<JobHandle, NativeArray<Threading.ThreadResult>> workQueue = new Dictionary<JobHandle, NativeArray<ThreadResult>>();
 		private Dictionary<JobHandle, Action<ThreadResult>> workCallbacks = new Dictionary<JobHandle, Action<ThreadResult>>();
 
+		// Generalised Struct for Unity JOBS system to execute a Func
 		public struct ThreadedWork<T1, TResult> : IJob
 		{
 			public T1 arg;
@@ -26,6 +30,7 @@ namespace Phobebase.Threading
 			}
 		}
 
+		// Starts a work on the unity JOBs system which can be completed over multiple frames
 		public void QueueBasicAsyncThread<T1, TResult>(Func<T1, ThreadResult> function, T1 arg, Action<ThreadResult> callback)
 		{
 			NativeArray<ThreadResult> result = new NativeArray<ThreadResult>(1, Allocator.TempJob);
@@ -43,6 +48,7 @@ namespace Phobebase.Threading
 			workCallbacks.Add(handle, callback);
 		}
 
+		// Checks if there are any JOBs that are complete and send data where it needs to go
 		void Update()
 		{
 			if (workQueue.Count == 0) return;

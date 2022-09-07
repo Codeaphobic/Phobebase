@@ -5,6 +5,7 @@ namespace Phobebase.Input
 {
     public class InputManagerBase : Singleton<InputManagerBase>
     {
+        // Unity Input ref
         protected static GameInput inputActions;
 
         protected virtual Awake()
@@ -17,10 +18,14 @@ namespace Phobebase.Input
 
         #region Control Interfaces
 
+        // public reference to the input actions
         public GameInput InputAction
         {
             get { return inputAction; }
         }
+
+        // A Heap of Functions to Bind to actions in different ways
+        // Just makes code in other classes a little cleaner
 
         public void SetStartedCallback(InputAction inputAction, Action<InputAction.CallbackContext> action)
         {
@@ -37,7 +42,7 @@ namespace Phobebase.Input
             inputAction.canceled += action;
         }
 
-        public void SetClickAndReleaseCallback(InputAction inputAction, Action<InputAction.CallbackContext> action)
+        public void SetStartedAndCanceledCallback(InputAction inputAction, Action<InputAction.CallbackContext> action)
         {
             inputAction.started += action;
             inputAction.canceled += action;
@@ -58,7 +63,7 @@ namespace Phobebase.Input
             inputAction.canceled -= action;
         }
 
-        public void UnsetClickAndReleaseCallback(InputAction inputAction, Action<InputAction.CallbackContext> action)
+        public void UnsetStartedAndCanceledCallback(InputAction inputAction, Action<InputAction.CallbackContext> action)
         {
             inputAction.started -= action;
             inputAction.canceled -= action;

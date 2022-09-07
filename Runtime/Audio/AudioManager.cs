@@ -6,6 +6,10 @@ using Phobebase.Common;
 
 namespace Phobebase.Audio
 {
+    // This Save System was quickly made for ATNL prolly not optimal
+
+    // 2D ONLY was never intended for 3D
+
     public class AudioManager : Singleton<AudioManager>
     {
 

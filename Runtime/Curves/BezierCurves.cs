@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace Phobebase.Curves
 {
+	// Simple Little Bezier Curve Classes 
+	// mostly so you dont have to look up the function every time u wanna use it.
+
     public class BezierCurve2
 	{
 		public Vector3 point1;

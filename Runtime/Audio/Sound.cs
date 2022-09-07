@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace Phobebase.Audio 
 {
+	// Sound Settings for use in the AudioManager
+
 	[System.Serializable]
 	public class Sound 
 	{

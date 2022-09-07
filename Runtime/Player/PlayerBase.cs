@@ -10,6 +10,7 @@ namespace Phobebase.Player
     {
         #region Initialisation
 
+        // Stores a Dictionary of All the Player Addons attached to the same Game Object
         protected Dictionary<Type, PlayerAddon> m_addons = new Dictionary<Type, PlayerAddon>();
 
         protected virtual void Awake()

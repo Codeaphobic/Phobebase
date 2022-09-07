@@ -10,10 +10,20 @@ using UnityEngine;
 
 namespace Phobebase.Common
 {
+	// Basic Save Systems have implemented them basically identically so that you can swap them relatively easily
+	// No data save of player machine is safe, anyone who really wants to tamper with data can and prolly will
+	// even with the Tamper Resistent. It just makes it harder to do without tools
+
+	// All methods still allow for sharing game files
+	// if in the editor will save to a Dev save file
+
     public class Serialization
 	{
 		#region Binary File Save System
 		
+		// Saves game using the Binary Formatter
+		// this is very ridged and save files can get misread especially over updates
+
 		public static bool SaveToBinaryFile(string saveSubPath, string saveName, object saveData)
 		{
 			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
@@ -83,6 +93,11 @@ namespace Phobebase.Common
 
 		#region Json File Save System
 
+		// Basic Json Save System 
+		// this will save data straight to a unaltered json format
+		// very flexiable and will still work if values move around aslong as the yhave the same name
+		// bulletproof between updates but very tamperable anyone with a text editor can do anything
+
 		public static bool SaveToJsonFile(string saveSubPath, string saveName, object saveData)
 		{
 			saveSubPath = (saveSubPath[0] == '/') ? saveSubPath : "/" + saveSubPath;
@@ -127,6 +142,11 @@ namespace Phobebase.Common
 		#endregion
 
 		#region Tamper Resistent Json File Save System
+
+		// More advanced Json Saving
+		// Saves Json but encrypts the characters makes reading and writing data without custom save editors alot harder
+		// Also saves a SHA256 Hash of save data in files so if its altered without updating the hash will set data to default values
+		// These methods can be easily bypassed with a custom made tool but is better then nothing
 
 		public static bool SaveToProtectedJsonFile(string saveSubPath, string saveName, object saveData, string key = "J34$%GWJ68#DW")
 		{

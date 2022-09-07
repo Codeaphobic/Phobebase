@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Phobebase.Threading
 {
+    // A Janky way to get around object being a nullable type
     public struct ThreadResult
     {
         public bool complete { get; set; }

@@ -10,6 +10,7 @@ namespace Phobebase.Extensions
 {
     public class Concat
     {
+		// Add an Array onto the back of another Array
         public static T[] Concat<T>(this T[] first, T[] second)
 		{
 			if (first == null)
