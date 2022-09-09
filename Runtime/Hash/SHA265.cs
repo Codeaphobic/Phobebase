@@ -11,7 +11,7 @@ namespace Phobebase.Hash
 {
 	// Mainly just for the Intergrated Save System so if your not using it proll dont need this
 
-    public class SHA265
+    public class SHA256
     {
 		// Hashes string with SHA256
         public static byte[] Hash(string data)

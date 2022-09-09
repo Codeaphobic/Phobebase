@@ -15,8 +15,6 @@ namespace Phobebase.Audio
 
         #region Variables 
 
-        public static AudioManager instance;
-
         public AudioMixerGroup mixerGroup;
 
         // Sounds 

@@ -5,12 +5,13 @@ using UnityEngine;
 
 namespace Phobebase.Player 
 {
-    [RequireComponent(typeof(Player))]
+    [RequireComponent(typeof(PlayerBase))]
     public abstract class PlayerAddon : MonoBehaviour
     {
         // Stored Reference to the Main Player Script
         private PlayerBase m_playerbase;
-        protected T Player<T>() {
+        protected T Player<T>() where T : PlayerBase
+        {
             return (T) m_playerbase;
         }
 

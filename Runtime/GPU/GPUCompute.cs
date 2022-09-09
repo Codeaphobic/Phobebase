@@ -75,38 +75,16 @@ namespace Phobebase.GPU
 			return this;
 		}
 
-		// Adds a pre-made RenderTexture to the shader
+		// Adds a pre-made Texture to the shader
 		public GPUCompute AddTexture(ref Texture texture, string textureName)
 		{
 			shader.SetTexture(0, textureName, texture);
 			return this;
 		}
 
-		// Adds a generated RenderTexture to the shader with specified Resolution
-		public GPUCompute CreateTexture(string textureName, Vector2Int dimensions, int depth, out Texture texture)
-		{
-			texture = new Texture(dimensions.x, dimensions.y, depth);
-			texture.enableRandomWrite = true;
-			texture.Create();
-
-			shader.SetTexture(0, textureName, texture);
-			return this;
-		}
-
-		// Adds a pre-made RenderTexture to a certain Pass of the shader
+		// Adds a pre-made Texture to a certain Pass of the shader
 		public GPUCompute AddTexture(ref Texture texture, string textureName, int bufferLocation)
 		{
-			shader.SetTexture(bufferLocation, textureName, texture);
-			return this;
-		}
-
-		// Adds a generated RenderTexture to a certain Pass of the shader
-		public GPUCompute CreateTexture(string textureName, Vector2Int dimensions, int depth, int bufferLocation, out Texture texture)
-		{
-			texture = new Texture(dimensions.x, dimensions.y, depth);
-			texture.enableRandomWrite = true;
-			texture.Create();
-
 			shader.SetTexture(bufferLocation, textureName, texture);
 			return this;
 		}

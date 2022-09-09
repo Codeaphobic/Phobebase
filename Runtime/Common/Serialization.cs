@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using Phobebase.Hash;
+using Phobebase.Extensions;
 
 namespace Phobebase.Common
 {
@@ -163,9 +162,7 @@ namespace Phobebase.Common
 			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
 			byte[] saveDataBytes = Encoding.UTF8.GetBytes(EncryptDecrypt(JsonUtility.ToJson(saveData, false), key));
-			byte[] data = Hashing.Hash(saveDataBytes);
-
-			Debug.Log($"Hash: {Hashing.GetHexStringFromHash(data)}, Data: {Hashing.GetHexStringFromHash(saveDataBytes)}");
+			byte[] data = SHA256.Hash(saveDataBytes);
 
 			data = data.Concat(saveDataBytes);
 
@@ -197,10 +194,7 @@ namespace Phobebase.Common
 			byte[] savedhash = data[0..32];
 			data = data[32..];
 
-			byte[] hash = Hashing.Hash(data);
-
-			Debug.Log($"SavedHash: {Hashing.GetHexStringFromHash(savedhash)}, Data: {Hashing.GetHexStringFromHash(data)}");
-			Debug.Log($"New Hash:  {Hashing.GetHexStringFromHash(hash)}");
+			byte[] hash = SHA256.Hash(data);
 
 			if (!savedhash.SequenceEqual(hash)) return default(T);
 

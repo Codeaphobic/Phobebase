@@ -1,28 +1,34 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using Phobebase.Common;
 
 namespace Phobebase.Input
 {
     public class InputManagerBase : Singleton<InputManagerBase>
     {
         // Unity Input ref
-        protected static GameInput inputActions;
+        // Uncomment When you have made a GameInput
+        //protected static GameInput inputActions;
 
-        protected virtual Awake()
+        protected override void Awake()
         {
             base.Awake();
 
-            if (inputActions == null) inputActions = new GameInput();
+            // Uncomment When you have made a GameInput
+            //if (inputActions == null) inputActions = new GameInput();
             DontDestroyOnLoad(this.gameObject);
         }
 
         #region Control Interfaces
 
         // public reference to the input actions
-        public GameInput InputAction
-        {
-            get { return inputAction; }
-        }
+
+        // Uncomment When you have made a GameInput
+        //public GameInput InputAction
+        //{
+        //    get { return inputAction; }
+        //}
 
         // A Heap of Functions to Bind to actions in different ways
         // Just makes code in other classes a little cleaner
