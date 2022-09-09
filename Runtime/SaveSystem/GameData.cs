@@ -26,6 +26,7 @@ namespace Phobebase.SaveSystem
         {
             foreach(SaveData data in m_dataList.Values)
             {
+                if (data == null) continue;
                 Serialization.SaveToProtectedJsonFile($"/saves/", $"{data.GetType().ToString()}.cdphbc", data);
             }
         }
@@ -47,6 +48,8 @@ namespace Phobebase.SaveSystem
             SaveData.GetAll().ToList().ForEach(x => LoadType(x));
         }
 
+        // DONT USE THIS ONE WHEN SAVING SINGLE FILES
+        // use the one below will be alot faster
         private static void LoadType(Type type)
         {
             MethodInfo method = typeof(GameData).GetMethod(nameof(GameData.LoadSingle));
