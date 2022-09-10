@@ -11,10 +11,13 @@ public class SaveSystemExampleEditor : Editor
     {
         // Grabs all the Player Data files to help the player know whats in each save
         PlayerData[] data = GameData.LoadAllSlots<PlayerData>();
-        for (int i = 0; i<data.Length; i++)
+        GUILayout.Label($"Saves:");
+        for (int i = 0; i < data.Length; i++)
         {
-            GUILayout.Label($"Slot {i}: Lollies = {data[i].lollies}");
+            GUILayout.Label($"        Slot {i}: Lollies = {data[i].lollies}");
         }
+
+        GUILayout.Space(25);
 
         DrawDefaultInspector();
 
@@ -25,7 +28,7 @@ public class SaveSystemExampleEditor : Editor
         script.player = GameData.Get<PlayerData>();
         script.enemy = GameData.Get<EnemyData>();
 
-        GUILayout.Space(10);
+        GUILayout.Space(25);
 
         if (GUILayout.Button("Save"))
         {

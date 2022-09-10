@@ -101,7 +101,7 @@ namespace Phobebase.SaveSystem
 
             for (int i = 0; i < dirs.Length; i++)
             {
-                files[i] = Serialization.LoadProtectedJsonFile<T>(dirs[i]);
+                files[i] = Serialization.LoadProtectedJsonFileFullPath<T>(dirs[i]);
             }
 
             return files;

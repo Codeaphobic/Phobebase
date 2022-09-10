@@ -199,7 +199,7 @@ namespace Phobebase.Common
 			return JsonUtility.FromJson<T>(EncryptDecrypt(Encoding.UTF8.GetString(data), key));
 		}
 
-		public static T LoadProtectedJsonFile<T>(string path, string key = "J34$%GWJ68#DW")
+		public static T LoadProtectedJsonFileFullPath<T>(string path, string key = "J34$%GWJ68#DW")
 		{
 			if (!File.Exists(path)) return default(T);
 
