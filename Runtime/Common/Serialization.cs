@@ -189,7 +189,21 @@ namespace Phobebase.Common
 
 			byte[] data = File.ReadAllBytes(path);
 
-			Debug.Log(data.Length);
+			byte[] savedhash = data[0..32];
+			data = data[32..];
+
+			byte[] hash = SHA256.Hash(data);
+
+			if (!savedhash.SequenceEqual(hash)) return default(T);
+
+			return JsonUtility.FromJson<T>(EncryptDecrypt(Encoding.UTF8.GetString(data), key));
+		}
+
+		public static T LoadProtectedJsonFile<T>(string path, string key = "J34$%GWJ68#DW")
+		{
+			if (!File.Exists(path)) return default(T);
+
+			byte[] data = File.ReadAllBytes(path);
 
 			byte[] savedhash = data[0..32];
 			data = data[32..];
