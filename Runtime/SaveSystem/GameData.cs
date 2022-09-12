@@ -15,6 +15,8 @@ namespace Phobebase.SaveSystem
         protected static Dictionary<Type,SaveData> m_dataList = new Dictionary<Type, SaveData>();
         protected static string p_save = "default";
 
+        // Gets the SaveData file that you want from the dictionary
+        // Use this to set data within the files
         public static T Get<T>() where T : SaveData
         {
             if (!m_dataList.ContainsKey(typeof(T))) m_dataList.Add(typeof(T), Activator.CreateInstance(typeof(T)) as SaveData);
