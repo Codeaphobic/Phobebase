@@ -43,8 +43,11 @@ namespace Phobebase.Extensions
         }
 
         // Make other Triadic Colours with alterable Saturation and Luminance
-        public static Color[] GetTriadicColor(this Color color, float[] SMultis = new float[]{1,1}, float[] VMultis = new float[]{1,1})
+        public static Color[] GetTriadicColor(this Color color, float[] SMultis = null, float[] VMultis = null)
         {
+            if (SMultis == null) SMultis = new float[] { 1, 1 };
+            if (VMultis == null) VMultis = new float[] { 1, 1 };
+
             float H, H2, S, V;
 
             Color.RGBToHSV(color, out H, out S, out V);
